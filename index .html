@@ -1,0 +1,466 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Deliva Xpujil — Tienda local (En desarrollo)</title>
+  <meta name="description" content="Deliva Xpujil — Tienda local. Versión en desarrollo. Pedidos por WhatsApp." />
+  <style>
+    :root{
+      --bg:#f6f7f8; --card:#ffffff; --muted:#6b7280; --accent:#24303a; --brand:#374151;
+      --pill:#eef3f6; --success:#16a34a; --danger:#ef4444;
+      font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, 'Helvetica Neue';
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--accent);-webkit-font-smoothing:antialiased}
+    a{color:inherit}
+
+    /* Dev banner */
+    .dev-banner{background:#fff4e6;color:#92400e;padding:8px;text-align:center;font-weight:600;border-bottom:1px solid #fde3bf}
+
+    /* Header */
+    header{position:sticky;top:0;background:linear-gradient(180deg,var(--card),var(--bg));z-index:60;padding:10px 0;border-bottom:1px solid #e9eef2}
+    .container{max-width:1200px;margin:0 auto;padding:0 18px}
+    .top{display:flex;align-items:center;gap:12px}
+    .logo-wrap{display:flex;align-items:center;gap:12px}
+    .logo-btn{display:flex;align-items:center;gap:10px;cursor:pointer;padding:6px;border-radius:8px}
+    .logo-img{width:52px;height:52px;border-radius:10px;background:linear-gradient(135deg,#f0f4f8,#ffffff);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--brand);overflow:hidden}
+    .brand-text{font-weight:700}
+
+    .search{flex:1}
+    .search input{width:100%;padding:10px 14px;border-radius:10px;border:1px solid #e6e9ec;background:transparent}
+
+    .nav-actions{display:flex;gap:8px;align-items:center}
+    .small-btn{padding:8px 10px;border-radius:10px;border:0;background:var(--pill);cursor:pointer}
+
+    /* Floating side logo (insertable externally) */
+    .side-logo{position:fixed;right:18px;bottom:18px;background:var(--card);padding:8px;border-radius:12px;box-shadow:0 8px 28px rgba(12,18,28,0.08);display:flex;align-items:center;gap:8px;z-index:80}
+    .side-logo img{width:44px;height:44px;border-radius:8px;object-fit:cover}
+    .side-logo .hint{font-size:13px;color:var(--muted)}
+
+    /* Layout */
+    main{padding:20px 0}
+    .layout{display:grid;grid-template-columns:260px 1fr;gap:20px;max-width:1200px;margin:0 auto;padding:0 18px}
+
+    /* Sidebar */
+    .sidebar{background:var(--card);padding:14px;border-radius:12px;box-shadow:0 6px 18px rgba(16,24,40,0.04)}
+    .sidebar h4{margin:0 0 8px 0}
+    .menu-scroll{display:flex;overflow:auto;gap:8px;padding:8px 4px}
+    .menu-item{flex:0 0 auto;padding:8px 12px;border-radius:999px;background:var(--pill);cursor:pointer;white-space:nowrap}
+    .menu-item.active{background:var(--brand);color:white}
+
+    /* Content */
+    .hero{background:linear-gradient(90deg,#ffffff,#fbfdff);padding:14px;border-radius:12px;display:flex;gap:18px;align-items:center;justify-content:space-between}
+    .hero h1{margin:0;font-size:20px}
+    .hero p{margin:6px 0 0;color:var(--muted)}
+
+    .controls{display:flex;gap:10px;align-items:center;margin-top:12px}
+
+    /* Offers carousel */
+    .offers{margin-top:14px;background:transparent}
+    .offers .strip{display:flex;gap:12px;overflow-x:auto;padding:10px}
+    .offers .offer{min-width:220px;background:linear-gradient(180deg,#fff,#fbfbfb);padding:12px;border-radius:12px;border:1px solid #eef2f6}
+    .offers .price-old{ text-decoration:line-through;color:var(--muted);font-size:13px }
+    .badge{background:var(--danger);color:white;padding:4px 8px;border-radius:999px;font-weight:700;font-size:12px}
+
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-top:16px}
+    .card{background:var(--card);padding:12px;border-radius:12px;box-shadow:0 6px 18px rgba(16,24,40,0.04);display:flex;flex-direction:column;gap:8px}
+    .thumb{height:150px;border-radius:8px;background:linear-gradient(180deg,#f0f2f4,#ffffff);display:flex;align-items:center;justify-content:center;font-size:40px;color:#cbd5e1;overflow:hidden}
+    .thumb img{width:100%;height:100%;object-fit:cover}
+    .title{font-weight:700}
+    .meta{color:var(--muted);font-size:13px}
+    .price-row{display:flex;justify-content:space-between;align-items:center}
+    .price{font-weight:800}
+    .price-sale{color:var(--danger);font-weight:800}
+    .btn-primary{background:var(--brand);color:white;padding:8px 10px;border-radius:8px;border:0;cursor:pointer}
+
+    /* Admin panel (collapsible) */
+    .admin{margin-top:12px;background:#fff;padding:12px;border-radius:12px;box-shadow:0 6px 18px rgba(16,24,40,0.04)}
+    .field{display:flex;flex-direction:column;margin-bottom:8px}
+    .field label{font-size:13px;color:var(--muted);margin-bottom:6px}
+    .field input, .field textarea, .field select{padding:8px;border-radius:8px;border:1px solid #e6e9ec}
+
+    /* small responsive */
+    @media(max-width:900px){
+      .layout{grid-template-columns:1fr}
+      .side-logo{right:12px;bottom:12px}
+    }
+  </style>
+</head>
+<body>
+  <div class="dev-banner">⚙️ Deliva está en desarrollo — Próximamente más funciones</div>
+
+  <header>
+    <div class="container top">
+      <div class="logo-wrap">
+        <div class="logo-btn" id="toggleMenu" title="Mostrar menú">
+          <div class="logo-img" id="mainLogo">D</div>
+          <div>
+            <div class="brand-text">Deliva Xpujil</div>
+            <div style="font-size:12px;color:var(--muted)">Tienda local — En desarrollo</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="search">
+        <input id="searchInput" placeholder="Buscar productos, marcas o categorías..." />
+      </div>
+
+      <div class="nav-actions">
+        <button class="small-btn" id="adminToggle">Admin</button>
+        <button class="small-btn" id="cartBtn">Carrito (0)</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="layout">
+      <aside class="sidebar">
+        <h4>Menú (desliza →)</h4>
+        <div class="menu-scroll" id="mainMenu" role="navigation" aria-label="Categorías"></div>
+
+        <div style="margin-top:12px">
+          <h4>Gestionar categorías</h4>
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <input id="newCategory" placeholder="Nueva categoría" style="flex:1;padding:8px;border-radius:8px;border:1px solid #e6e9ec" />
+            <button class="small-btn" id="addCategory">Agregar</button>
+          </div>
+          <div id="categoryList" style="margin-top:8px;font-size:13px;color:var(--muted)"></div>
+        </div>
+
+        <div style="margin-top:12px;font-size:13px;color:var(--muted)">
+          <strong>Logo externo</strong><br/>
+          Inserta la URL de tu logo para que aparezca en el flotante.
+          <div style="margin-top:8px;display:flex;gap:8px">
+            <input id="logoUrl" placeholder="https://.../logo.png" style="flex:1;padding:8px;border-radius:8px;border:1px solid #e6e9ec" />
+            <button class="small-btn" id="setLogo">Insertar</button>
+          </div>
+        </div>
+      </aside>
+
+      <section>
+        <div class="hero">
+          <div>
+            <h1>Deliva Xpujil — Tu tienda local</h1>
+            <p>Vende y entrega localmente. Administra desde este panel (acceso protegido).</p>
+          </div>
+          <div style="text-align:right;color:var(--muted)">Entrega local · Pedidos por WhatsApp</div>
+        </div>
+
+        <!-- Offers carousel -->
+        <div class="offers" id="offersSection" style="display:none">
+          <h4 style="margin:8px 0 6px 4px">🔥 Ofertas del día</h4>
+          <div class="strip" id="offersStrip"></div>
+        </div>
+
+        <div class="controls">
+          <div style="color:var(--muted)">Mostrando <span id="count">0</span> productos</div>
+          <div style="margin-left:auto;display:flex;gap:8px">
+            <select id="sort">
+              <option value="relevance">Relevancia</option>
+              <option value="price-asc">Precio: menor a mayor</option>
+              <option value="price-desc">Precio: mayor a menor</option>
+            </select>
+            <button class="small-btn" id="exportBtn">Exportar JSON</button>
+            <button class="small-btn" id="importBtn">Importar JSON</button>
+          </div>
+        </div>
+
+        <div class="grid" id="products"></div>
+
+        <!-- Admin panel (hidden until auth) -->
+        <div class="admin" id="adminPanel" style="display:none">
+          <h3>Panel de administración</h3>
+          <div class="field"><label>Nombre de tienda</label><input id="storeName" placeholder="Deliva Xpujil" /></div>
+          <div class="field"><label>WhatsApp para pedidos (ej. 529831194156)</label><input id="whatsapp" placeholder="529831194156" /></div>
+
+          <hr/>
+          <h4>Añadir / editar producto</h4>
+          <div class="field"><label>Nombre</label><input id="p_name" /></div>
+          <div class="field"><label>Descripción</label><textarea id="p_desc" rows="3"></textarea></div>
+          <div class="field"><label>Categoría</label><select id="p_cat"></select></div>
+          <div style="display:flex;gap:8px">
+            <div class="field" style="flex:1"><label>Precio actual (MXN)</label><input id="p_price" type="number" step="0.01"/></div>
+            <div class="field" style="flex:1"><label>Precio base / antes (MXN) — opcional</label><input id="p_price_base" type="number" step="0.01"/></div>
+          </div>
+          <div class="field"><label>Imagen (URL)</label><input id="p_img" placeholder="https://...jpg"/></div>
+          <div style="display:flex;gap:8px"><button class="btn-primary" id="addProduct">Agregar producto</button><button class="small-btn" id="clearStore">Limpiar</button></div>
+
+          <hr/>
+          <h4>Import / Export</h4>
+          <div style="display:flex;gap:8px">
+            <textarea id="importArea" placeholder='Pega aquí el JSON de productos para importar' style="flex:1;height:90px;padding:8px;border-radius:8px;border:1px solid #e6e9ec"></textarea>
+            <div style="width:220px;display:flex;flex-direction:column;gap:8px"><button class="small-btn" id="doImport">Importar</button><button class="small-btn" id="downloadJson">Descargar JSON</button></div>
+          </div>
+
+          <hr/>
+          <h4>Embed / Logo</h4>
+          <div style="font-size:13px;color:var(--muted)">Copia este código para insertar el logo táctil en otras webs:</div>
+          <textarea id="embedCode" style="width:100%;height:60px;margin-top:8px;padding:8px;border-radius:8px;border:1px solid #e6e9ec"></textarea>
+        </div>
+
+      </section>
+    </div>
+  </main>
+
+  <div class="side-logo" id="floatingLogo" title="Ir al menú">
+    <img id="floatingImg" src="" alt="Logo Deliva" />
+    <div class="hint">Ir al menú</div>
+  </div>
+
+  <script>
+    /* ----------------- IndexedDB wrapper (simple) ----------------- */
+    const DB_NAME = 'deliva_db_v1';
+    const DB_VERSION = 1;
+    const STORE_PRODUCTS = 'products';
+    const STORE_CATS = 'categories';
+    const STORE_SETTINGS = 'settings';
+
+    function openDB(){
+      return new Promise((res, rej)=>{
+        const req = indexedDB.open(DB_NAME, DB_VERSION);
+        req.onupgradeneeded = e => {
+          const db = e.target.result;
+          if(!db.objectStoreNames.contains(STORE_PRODUCTS)) db.createObjectStore(STORE_PRODUCTS,{keyPath:'id'});
+          if(!db.objectStoreNames.contains(STORE_CATS)) db.createObjectStore(STORE_CATS,{keyPath:'name'});
+          if(!db.objectStoreNames.contains(STORE_SETTINGS)) db.createObjectStore(STORE_SETTINGS,{keyPath:'key'});
+        };
+        req.onsuccess = ()=> res(req.result);
+        req.onerror = ()=> rej(req.error);
+      });
+    }
+
+    async function idbPut(store, value){ const db = await openDB(); return new Promise((res,rej)=>{ const tx = db.transaction(store,'readwrite'); tx.objectStore(store).put(value); tx.oncomplete = ()=> res(true); tx.onerror = ()=> rej(tx.error); }); }
+    async function idbGetAll(store){ const db = await openDB(); return new Promise((res,rej)=>{ const tx = db.transaction(store,'readonly'); const req = tx.objectStore(store).getAll(); req.onsuccess = ()=> res(req.result||[]); req.onerror = ()=> rej(req.error); }); }
+    async function idbGet(store,key){ const db = await openDB(); return new Promise((res,rej)=>{ const tx = db.transaction(store,'readonly'); const req = tx.objectStore(store).get(key); req.onsuccess = ()=> res(req.result); req.onerror = ()=> rej(req.error); }); }
+    async function idbDelete(store,key){ const db = await openDB(); return new Promise((res,rej)=>{ const tx = db.transaction(store,'readwrite'); const req = tx.objectStore(store).delete(key); tx.oncomplete = ()=> res(true); tx.onerror = ()=> rej(tx.error); }); }
+
+    /* ----------------- Defaults ----------------- */
+    const defaultProducts = [
+      {id:1,title:'Audífonos inalámbricos X12',desc:'Bluetooth, 20h batería',cat:'Electrónica',price:379.00,price_base:499.00,img:'',seller:'Deliva Xpujil'},
+      {id:2,title:'Pan artesanal (6pz)',desc:'Hecho en Xpujil, fresco',cat:'Alimentos',price:50.00,price_base:null,img:'',seller:'Deliva Xpujil'},
+      {id:3,title:'Camisa casual lino',desc:'Tallas S-XL',cat:'Moda',price:29.5,price_base:39.90,img:'',seller:'Deliva Xpujil'}
+    ];
+
+    const defaultCategories = ['Todas','Electrónica','Alimentos','Moda'];
+    const defaultSettings = [
+      {key:'storeName',value:'Deliva Xpujil'},
+      {key:'whatsapp',value:'529831194156'},
+      {key:'logoUrl',value:''}
+    ];
+
+    /* ----------------- UI references ----------------- */
+    const productsEl = document.getElementById('products');
+    const countEl = document.getElementById('count');
+    const searchInput = document.getElementById('searchInput');
+    const mainMenu = document.getElementById('mainMenu');
+    const adminPanel = document.getElementById('adminPanel');
+    const adminToggle = document.getElementById('adminToggle');
+    const addProductBtn = document.getElementById('addProduct');
+    const exportBtn = document.getElementById('exportBtn');
+    const importBtn = document.getElementById('importBtn');
+    const importArea = document.getElementById('importArea');
+    const embedCode = document.getElementById('embedCode');
+    const setLogoBtn = document.getElementById('setLogo');
+    const logoUrlInput = document.getElementById('logoUrl');
+    const floatingImg = document.getElementById('floatingImg');
+    const mainLogo = document.getElementById('mainLogo');
+    const offersSection = document.getElementById('offersSection');
+    const offersStrip = document.getElementById('offersStrip');
+
+    /* ----------------- State in memory (mirrors DB) ----------------- */
+    let products = [];
+    let categories = [];
+    let settings = {};
+
+    /* ----------------- Init DB & load defaults if empty ----------------- */
+    async function seedIfEmpty(){
+      const p = await idbGetAll(STORE_PRODUCTS);
+      if(!p || p.length===0){ for(const it of defaultProducts){ await idbPut(STORE_PRODUCTS,it); } products = defaultProducts.slice(); } else products = p;
+      const c = await idbGetAll(STORE_CATS);
+      if(!c || c.length===0){ for(const name of defaultCategories){ await idbPut(STORE_CATS,{name}); } categories = defaultCategories.slice(); } else categories = c.map(x=>x.name);
+      const s = await idbGetAll(STORE_SETTINGS);
+      if(!s || s.length===0){ for(const it of defaultSettings){ await idbPut(STORE_SETTINGS,it); } settings = Object.fromEntries(defaultSettings.map(x=>[x.key,x.value])); } else settings = Object.fromEntries(s.map(x=>[x.key,x.value]));
+    }
+
+    /* ----------------- Rendering ----------------- */
+    function formatMoney(n){ return '$'+Number(n).toFixed(2); }
+
+    function renderMenu(){
+      if(!categories.includes('Todas')) categories.unshift('Todas');
+      mainMenu.innerHTML = '';
+      categories.forEach((c,i)=>{
+        const btn = document.createElement('button'); btn.className='menu-item'+(i===0?' active':''); btn.textContent=c; btn.dataset.cat=c;
+        btn.addEventListener('click',()=>{ document.querySelectorAll('.menu-item').forEach(x=>x.classList.remove('active')); btn.classList.add('active'); applyFilters(); });
+        mainMenu.appendChild(btn);
+      });
+      // populate select
+      const sel = document.getElementById('p_cat'); sel.innerHTML=''; categories.forEach(c=>{ const o=document.createElement('option'); o.value=c==='Todas'?'Sin categoría':c; o.textContent=c; sel.appendChild(o); });
+      renderCategoryList();
+    }
+
+    function renderCategoryList(){
+      const list = document.getElementById('categoryList'); list.innerHTML='';
+      categories.filter(c=>c!=='Todas').forEach(c=>{
+        const div = document.createElement('div'); div.style.display='flex'; div.style.justifyContent='space-between'; div.style.alignItems='center'; div.style.marginTop='6px'; div.innerHTML = `<div>${c}</div><button class='small-btn' data-cat='${c}'>Eliminar</button>`;
+        div.querySelector('button').addEventListener('click',async()=>{ if(confirm('Eliminar categoría "'+c+'" ?')){ await idbDelete(STORE_CATS,c); categories = categories.filter(x=>x!==c); renderMenu(); } });
+        list.appendChild(div);
+      });
+    }
+
+    function renderOffersFromProducts(){
+      const sales = products.filter(p=>p.price_base && Number(p.price_base)>Number(p.price));
+      if(sales.length===0){ offersSection.style.display='none'; return }
+      offersSection.style.display='block'; offersStrip.innerHTML='';
+      sales.forEach(p=>{
+        const off = Math.round((1 - (Number(p.price)/Number(p.price_base)))*100);
+        const div = document.createElement('div'); div.className='offer';
+        div.innerHTML = `
+          <div style="height:90px;overflow:hidden;border-radius:8px;margin-bottom:8px">${p.img?`<img src="${p.img}" style="width:100%;height:90px;object-fit:cover;border-radius:6px"/>`:'<div style="height:90px;display:flex;align-items:center;justify-content:center;color:#cbd5e1">Imagen</div>'}</div>
+          <div style="font-weight:700">${p.title}</div>
+          <div class="price-old">${p.price_base?formatMoney(p.price_base):''}</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px"><div class="price-sale">${formatMoney(p.price)}</div><div class="badge">-${off}%</div></div>
+        `;
+        offersStrip.appendChild(div);
+      });
+    }
+
+    function renderProducts(list){
+      productsEl.innerHTML='';
+      countEl.textContent = list.length;
+      if(list.length===0){ productsEl.innerHTML='<div style="color:var(--muted)">No hay productos.</div>'; return }
+      list.forEach(p=>{
+        const card = document.createElement('div'); card.className='card';
+        let discountHtml = '';
+        if(p.price_base && Number(p.price_base)>Number(p.price)){
+          const off = Math.round((1 - (Number(p.price)/Number(p.price_base)))*100);
+          discountHtml = `<div style="display:flex;gap:8px;align-items:center"><div class="price-old">${formatMoney(p.price_base)}</div><div class="price-sale">${formatMoney(p.price)}</div><div class="badge">-${off}%</div></div>`;
+        }
+        card.innerHTML = `
+          <div class="thumb">${p.img?`<img src="${p.img}" alt="${p.title}"/>`:'<div style="padding:12px;color:#cbd5e1">Imagen</div>'}</div>
+          <div class="title">${p.title}</div>
+          <div class="meta">${p.seller || settings.storeName} · ${p.cat || ''}</div>
+          <div class="meta" style="font-size:13px">${p.desc || ''}</div>
+          <div style="margin-top:6px">${discountHtml || `<div class=\"price\">${formatMoney(p.price)}</div>`}</div>
+          <div class="price-row">
+            <div></div>
+            <div style="display:flex;gap:8px">
+              <button class="small-btn" onclick="window.open('https://api.whatsapp.com/send?phone='+encodeURIComponent('${settings.whatsapp||'529831194156'}')+'&text='+encodeURIComponent('Hola,%20quiero%20pedir:%20${encodeURIComponent(p.title)}'),'_blank')">Pedir</button>
+              <button class="small-btn" data-id="${p.id}" onclick="addToCart(${p.id})">Añadir</button>
+            </div>
+          </div>
+        `;
+        productsEl.appendChild(card);
+      });
+    }
+
+    /* ----------------- Filters and search ----------------- */
+    function applyFilters(){
+      const q = searchInput.value.trim().toLowerCase();
+      const active = document.querySelector('.menu-item.active');
+      const cat = active?active.dataset.cat:'Todas';
+      let out = products.filter(p=>{
+        if(cat && cat!=='Todas' && (p.cat || 'Sin categoría')!==cat) return false;
+        if(q && !( (p.title||'').toLowerCase().includes(q) || (p.desc||'').toLowerCase().includes(q) )) return false;
+        return true;
+      });
+      const sort = document.getElementById('sort').value;
+      if(sort==='price-asc') out.sort((a,b)=>a.price-b.price);
+      if(sort==='price-desc') out.sort((a,b)=>b.price-a.price);
+      renderProducts(out);
+    }
+
+    /* ----------------- Admin actions ----------------- */
+    document.getElementById('addProduct').addEventListener('click',async()=>{
+      const name = document.getElementById('p_name').value.trim();
+      const desc = document.getElementById('p_desc').value.trim();
+      const cat = document.getElementById('p_cat').value.trim() || 'Sin categoría';
+      const price = parseFloat(document.getElementById('p_price').value) || 0;
+      const price_base = document.getElementById('p_price_base').value? parseFloat(document.getElementById('p_price_base').value) : null;
+      const img = document.getElementById('p_img').value.trim();
+      if(!name){ alert('El producto necesita un nombre'); return }
+      const id = Date.now();
+      const newP = {id,title:name,desc,cat,price,price_base,img,seller:settings.storeName};
+      await idbPut(STORE_PRODUCTS,newP);
+      products.unshift(newP);
+      renderMenu(); applyFilters(); renderOffersFromProducts();
+      document.getElementById('p_name').value=''; document.getElementById('p_desc').value=''; document.getElementById('p_price').value=''; document.getElementById('p_price_base').value=''; document.getElementById('p_img').value='';
+    });
+
+    document.getElementById('addCategory').addEventListener('click',async()=>{
+      const v = document.getElementById('newCategory').value.trim(); if(!v) return alert('Escribe el nombre de la categoría');
+      if(categories.includes(v)){ alert('La categoría ya existe'); return }
+      await idbPut(STORE_CATS,{name:v});
+      categories.push(v); renderMenu(); document.getElementById('newCategory').value='';
+    });
+
+    document.getElementById('adminToggle').addEventListener('click',async()=>{
+      // open auth prompt
+      const pass = prompt('Contraseña de administrador:');
+      if(pass === 'Deliva123'){
+        adminPanel.style.display = 'block';
+        // populate settings inputs
+        document.getElementById('storeName').value = settings.storeName || '';
+        document.getElementById('whatsapp').value = settings.whatsapp || '';
+        document.getElementById('logoUrl').value = settings.logoUrl || '';
+        alert('Acceso admin concedido');
+      } else { if(pass!==null) alert('Contraseña incorrecta'); }
+    });
+
+    // save settings inputs
+    document.getElementById('storeName').addEventListener('input',async e=>{ settings.storeName = e.target.value; await idbPut(STORE_SETTINGS,{key:'storeName',value:settings.storeName}); });
+    document.getElementById('whatsapp').addEventListener('input',async e=>{ settings.whatsapp = e.target.value; await idbPut(STORE_SETTINGS,{key:'whatsapp',value:settings.whatsapp}); });
+
+    // logo
+    setLogoBtn.addEventListener('click',async()=>{ const url = logoUrlInput.value.trim(); if(!url) return alert('Pega la URL del logo'); settings.logoUrl = url; await idbPut(STORE_SETTINGS,{key:'logoUrl',value:url}); applyLogo(); generateEmbedCode(); alert('Logo insertado'); });
+
+    function generateEmbedCode(){ const url = settings.logoUrl || ''; const code = url?`<a href=\"/\" target=\"_blank\"><img src=\"${url}\" alt=\"Logo Deliva\" style=\"width:44px;height:44px;border-radius:8px;\"></a>`:''; embedCode.value = code; }
+
+    function applyLogo(){ if(settings.logoUrl){ floatingImg.src = settings.logoUrl; mainLogo.innerHTML=''; const img = document.createElement('img'); img.src = settings.logoUrl; img.style.width='100%'; img.style.height='100%'; img.style.objectFit='cover'; mainLogo.appendChild(img); } else { floatingImg.src=''; mainLogo.textContent='D'; } generateEmbedCode(); }
+
+    // export/import functions
+    document.getElementById('doImport').addEventListener('click',async()=>{ try{ const d = JSON.parse(importArea.value); if(!Array.isArray(d)){ alert('El JSON debe ser un arreglo de productos'); return } for(const it of d){ await idbPut(STORE_PRODUCTS,it); } products = await idbGetAll(STORE_PRODUCTS); renderMenu(); applyFilters(); renderOffersFromProducts(); alert('Importado con éxito'); }catch(e){ alert('JSON inválido') } });
+    document.getElementById('downloadJson').addEventListener('click',async()=>{ const data = await idbGetAll(STORE_PRODUCTS) || []; const blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'}); const url = URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='deliva_products.json'; a.click(); URL.revokeObjectURL(url); });
+    document.getElementById('exportBtn').addEventListener('click',async()=>{ const data = await idbGetAll(STORE_PRODUCTS) || []; const blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'}); const url = URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='deliva_products.json'; a.click(); URL.revokeObjectURL(url); });
+
+    // clear store
+    document.getElementById('clearStore').addEventListener('click',async()=>{ if(confirm('¿Limpiar TODOS los productos?')){ const all = await idbGetAll(STORE_PRODUCTS); for(const it of all){ await idbDelete(STORE_PRODUCTS,it.id); } products = []; renderMenu(); applyFilters(); renderOffersFromProducts(); } });
+
+    // cart simple
+    let cartCount = 0; function addToCart(id){ cartCount++; document.getElementById('cartBtn').textContent = `Carrito (${cartCount})`; }
+    window.addToCart = addToCart;
+
+    // search & sort
+    searchInput.addEventListener('input',()=>{ applyFilters(); });
+    document.getElementById('sort').addEventListener('change',()=>{ applyFilters(); });
+    document.getElementById('importBtn').addEventListener('click',()=>{ adminPanel.style.display='block'; importArea.focus(); });
+
+    // floating logo click
+    document.getElementById('floatingLogo').addEventListener('click',()=>{ window.scrollTo({top:0,behavior:'smooth'}); document.getElementById('toggleMenu').scrollIntoView({behavior:'smooth'}); });
+
+    /* ----------------- Offers.json external fetch (optional) ----------------- */
+    const OFFERS_JSON_URL = '';
+    async function loadExternalOffers(){ if(!OFFERS_JSON_URL) return; try{ const r = await fetch(OFFERS_JSON_URL,{cache:'no-store'}); if(!r.ok) return; const data = await r.json(); // merge or override
+        // show them in offersStrip
+        offersStrip.innerHTML=''; data.forEach(o=>{
+          const offPercent = o.price_base && o.price_base>o.price ? Math.round((1 - (o.price/o.price_base))*100) : 0;
+          const card = document.createElement('div'); card.className='offer';
+          card.innerHTML = `
+            <div style="height:90px;overflow:hidden;border-radius:8px;margin-bottom:8px">${o.img?`<img src="${o.img}" style="width:100%;height:90px;object-fit:cover;border-radius:6px"/>`:'<div style="height:90px;display:flex;align-items:center;justify-content:center;color:#cbd5e1">Imagen</div>'}</div>
+            <div style="font-weight:700">${o.title}</div>
+            <div class="price-old">${o.price_base?formatMoney(o.price_base):''}</div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px"><div class="price-sale">${formatMoney(o.price)}</div>${offPercent?`<div class="badge">-${offPercent}%</div>`:''}</div>
+          `;
+          offersStrip.appendChild(card);
+        }); offersSection.style.display='block'; }catch(e){console.error(e);} }
+
+    /* ----------------- Init sequence ----------------- */
+    (async function init(){ await seedIfEmpty(); products = await idbGetAll(STORE_PRODUCTS); const cats = await idbGetAll(STORE_CATS); categories = cats.map(x=>x.name); const s = await idbGetAll(STORE_SETTINGS); settings = Object.fromEntries(s.map(x=>[x.key,x.value])); renderMenu(); applyFilters(); renderOffersFromProducts(); applyLogo(); await loadExternalOffers(); generateEmbedCode(); })();
+
+    // Save DB on unload (just to be safe)
+    window.addEventListener('beforeunload',async()=>{ /* no-op (IDB persists automatically) */ });
+
+  </script>
+</body>
+</html>
+
